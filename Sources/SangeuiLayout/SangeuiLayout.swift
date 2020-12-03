@@ -1,10 +1,10 @@
 import UIKit
 
-enum StretchDirection {
+public enum StretchDirection {
     case vertical, horizontal, both
 }
 // MARK: - Domain Specific Language for AutoLayout
-protocol LayoutAnchor {
+public protocol LayoutAnchor {
     func constraint(equalTo anchor: Self) -> NSLayoutConstraint
     func constraint(greaterThanOrEqualTo anchor: Self) -> NSLayoutConstraint
     func constraint(lessThanOrEqualTo anchor: Self) -> NSLayoutConstraint
@@ -13,7 +13,7 @@ protocol LayoutAnchor {
     func constraint(greaterThanOrEqualTo anchor: Self, constant: CGFloat) -> NSLayoutConstraint
     func constraint(lessThanOrEqualTo anchor: Self, constant: CGFloat) -> NSLayoutConstraint
 }
-protocol LayoutDimension: LayoutAnchor {
+public protocol LayoutDimension: LayoutAnchor {
     func constraint(equalToConstant c: CGFloat) -> NSLayoutConstraint
     func constraint(greaterThanOrEqualToConstant c: CGFloat) -> NSLayoutConstraint
     func constraint(lessThanOrEqualToConstant c: CGFloat) -> NSLayoutConstraint
@@ -30,11 +30,11 @@ protocol LayoutDimension: LayoutAnchor {
 extension NSLayoutAnchor: LayoutAnchor {}
 extension NSLayoutDimension: LayoutDimension {}
 
-class LayoutAnchorProperty<Anchor: LayoutAnchor> {
+public class LayoutAnchorProperty<Anchor: LayoutAnchor> {
     fileprivate let anchor: Anchor
     init(anchor: Anchor) { self.anchor = anchor }
 }
-class LayoutDimensionProperty<Dimension: LayoutDimension>: LayoutAnchorProperty<Dimension> {
+public class LayoutDimensionProperty<Dimension: LayoutDimension>: LayoutAnchorProperty<Dimension> {
     init(dimension: Dimension) {
         super.init(anchor: dimension)
     }
@@ -62,7 +62,7 @@ public class LayoutProxy {
         return LayoutDimensionProperty(dimension: dimension)
     }
 }
-extension LayoutProxy {
+public extension LayoutProxy {
     func becomeChild(of view: UIView) {
         view.addSubview(self.view)
     }
@@ -86,7 +86,7 @@ extension LayoutProxy {
         anchor.equal(to: targetAnchor)
     }
 }
-extension LayoutAnchorProperty {
+public extension LayoutAnchorProperty {
     func equal(to otherAnchor: Anchor, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
         let constraint = anchor.constraint(equalTo: otherAnchor, constant: constant)
         constraint.priority = priority
@@ -103,7 +103,7 @@ extension LayoutAnchorProperty {
         constraint.isActive = true
     }
 }
-extension LayoutDimensionProperty {
+public extension LayoutDimensionProperty {
     func equal(toConstant c: CGFloat, priority: UILayoutPriority = .defaultHigh) {
         let constraint = anchor.constraint(equalToConstant: c)
         constraint.priority = priority
