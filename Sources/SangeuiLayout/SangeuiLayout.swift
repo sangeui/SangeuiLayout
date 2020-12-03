@@ -3,6 +3,10 @@ import UIKit
 public enum StretchDirection {
     case vertical, horizontal, both
 }
+public enum Guide {
+    case safeArea
+    case layoutMargins
+}
 // MARK: - Domain Specific Language for AutoLayout
 public protocol LayoutAnchor {
     func constraint(equalTo anchor: Self) -> NSLayoutConstraint
@@ -60,9 +64,6 @@ public class LayoutProxy {
         return LayoutAnchorProperty(anchor: anchor)
     }
     private func dimension<D: LayoutDimension>(with dimension: D) -> LayoutDimensionProperty<D> {
-        let parentView = UIView()
-        let view = UIView()
-        
         return LayoutDimensionProperty(dimension: dimension)
     }
 }
