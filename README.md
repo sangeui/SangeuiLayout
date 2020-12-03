@@ -8,6 +8,8 @@ It is made for me to use AutoLayout codes more easily.
 
 You can lay your view out as follows
 ```swift
+import SangeuiLayout
+
 let view = UIView()
 view.layout(using: { proxy in
     proxy.height.equal(toConstant: 20)
@@ -23,4 +25,34 @@ If you want to add your view into other view
 view.layout(using: { proxy in 
     proxy.becomeChild(of: otherView)
 })
+```
+
+As a result, some verbose AutoLayout lines of code can be reduced and more readable.
+```swift
+// From
+let parentView = UIView()
+let view = UIView()
+
+parentView.addSubview(view)
+view.translatesAutoresizingMaskIntoConstraints = false
+
+NSLayoutConstraint.activate([
+    view.leadingAnchor.constraint(equalTo: parentView.leadingAnchor),
+    view.trailingAnchor.constraint(equalTo: parentView.trailingAnchor),
+    view.topAnchor.constraint(equalTo: parentView.topAnchor),
+    view.bottomAnchor.constraint(equalTo: parentView.bottomAnchor)
+])
+
+// To
+let parentView = UIView()
+let view = UIView()
+
+view.layout(using: { proxy in 
+    proxy.becomeChild(of parentView)
+    proxy.leading.equal(to: parentView.leading)
+    proxy.trailing.equal(to: parentView.trailing)
+    proxy.top.equal(to: parentView.top)
+    proxy.bottom.equal(to: parentView.bottom)
+})
+
 ```

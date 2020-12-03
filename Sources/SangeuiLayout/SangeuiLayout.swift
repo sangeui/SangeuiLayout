@@ -60,6 +60,9 @@ public class LayoutProxy {
         return LayoutAnchorProperty(anchor: anchor)
     }
     private func dimension<D: LayoutDimension>(with dimension: D) -> LayoutDimensionProperty<D> {
+        let parentView = UIView()
+        let view = UIView()
+        
         return LayoutDimensionProperty(dimension: dimension)
     }
 }
