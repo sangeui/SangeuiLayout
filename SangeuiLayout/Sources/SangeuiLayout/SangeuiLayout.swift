@@ -1,13 +1,3 @@
-//
-//  SangeuiLayout.swift
-//  SangeuiLayout
-//
-//  Created by 서상의 on 2020/12/03.
-//
-
-import UIKit
-
-
 import UIKit
 
 enum StretchDirection {
@@ -57,7 +47,7 @@ public class LayoutProxy {
     lazy var centerX = anchor(with: view.centerXAnchor)
     lazy var centerY = anchor(with: view.centerYAnchor)
     
-    lazy var width = dimension(with: view.widthAnchor) 
+    lazy var width = dimension(with: view.widthAnchor)
     lazy var height = dimension(with: view.heightAnchor)
     
     private let view: UIView
