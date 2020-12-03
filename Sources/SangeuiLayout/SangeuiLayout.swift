@@ -40,15 +40,15 @@ public class LayoutDimensionProperty<Dimension: LayoutDimension>: LayoutAnchorPr
     }
 }
 public class LayoutProxy {
-    lazy var leading = anchor(with: view.leadingAnchor)
-    lazy var trailing = anchor(with: view.trailingAnchor)
-    lazy var top = anchor(with: view.topAnchor)
-    lazy var bottom = anchor(with: view.bottomAnchor)
-    lazy var centerX = anchor(with: view.centerXAnchor)
-    lazy var centerY = anchor(with: view.centerYAnchor)
+    public lazy var leading = anchor(with: view.leadingAnchor)
+    public lazy var trailing = anchor(with: view.trailingAnchor)
+    public lazy var top = anchor(with: view.topAnchor)
+    public lazy var bottom = anchor(with: view.bottomAnchor)
+    public lazy var centerX = anchor(with: view.centerXAnchor)
+    public lazy var centerY = anchor(with: view.centerYAnchor)
     
-    lazy var width = dimension(with: view.widthAnchor)
-    lazy var height = dimension(with: view.heightAnchor)
+    public lazy var width = dimension(with: view.widthAnchor)
+    public lazy var height = dimension(with: view.heightAnchor)
     
     private let view: UIView
     
