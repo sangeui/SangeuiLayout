@@ -43,7 +43,7 @@ public class LayoutDimensionProperty<Dimension: LayoutDimension>: LayoutAnchorPr
         super.init(anchor: dimension)
     }
 }
-public class LayoutProxy {
+public class LayoutProxy<View: UIView> {
     public lazy var leading = anchor(with: view.leadingAnchor)
     public lazy var trailing = anchor(with: view.trailingAnchor)
     public lazy var top = anchor(with: view.topAnchor)
@@ -54,9 +54,9 @@ public class LayoutProxy {
     public lazy var width = dimension(with: view.widthAnchor)
     public lazy var height = dimension(with: view.heightAnchor)
     
-    private let view: UIView
+    private let view: View
     
-    fileprivate init(view: UIView) {
+    fileprivate init(view: View) {
         self.view = view
     }
     private func anchor<A: LayoutAnchor>(with anchor: A) -> LayoutAnchorProperty<A> {
@@ -66,6 +66,10 @@ public class LayoutProxy {
     private func dimension<D: LayoutDimension>(with dimension: D) -> LayoutDimensionProperty<D> {
         return LayoutDimensionProperty(dimension: dimension)
     }
+}
+public extension LayoutProxy where View: UIScrollView {
+    @available(iOS 11.0, *)
+    var contentlayout: UILayoutGuide { return view.contentLayoutGuide }
 }
 public extension LayoutProxy {
     func becomeChild(of view: UIView) {
@@ -141,8 +145,8 @@ public extension LayoutDimensionProperty {
     }
 }
 public extension UIView {
-    func layout(using closure: (LayoutProxy) -> Void) {
+    func layout<View: UIView>(using closure: (LayoutProxy<View>) -> Void) {
         translatesAutoresizingMaskIntoConstraints = false
-        closure(LayoutProxy(view: self))
+        closure(LayoutProxy(view: self as! View))
     }
 }
