@@ -1,49 +1,11 @@
 import UIKit
 
-public enum StretchDirection {
-    case vertical, horizontal, both
-}
-public enum Guide {
-    case safeArea
-    case layoutMargins
-}
 // MARK: - Domain Specific Language for AutoLayout
-public protocol LayoutAnchor {
-    func constraint(equalTo anchor: Self) -> NSLayoutConstraint
-    func constraint(greaterThanOrEqualTo anchor: Self) -> NSLayoutConstraint
-    func constraint(lessThanOrEqualTo anchor: Self) -> NSLayoutConstraint
-    
-    func constraint(equalTo anchor: Self, constant: CGFloat) -> NSLayoutConstraint
-    func constraint(greaterThanOrEqualTo anchor: Self, constant: CGFloat) -> NSLayoutConstraint
-    func constraint(lessThanOrEqualTo anchor: Self, constant: CGFloat) -> NSLayoutConstraint
-}
-public protocol LayoutDimension: LayoutAnchor {
-    func constraint(equalToConstant c: CGFloat) -> NSLayoutConstraint
-    func constraint(greaterThanOrEqualToConstant c: CGFloat) -> NSLayoutConstraint
-    func constraint(lessThanOrEqualToConstant c: CGFloat) -> NSLayoutConstraint
-    
-    func constraint(equalTo anchor: Self, multiplier: CGFloat) -> NSLayoutConstraint
-    func constraint(greaterThanOrEqualTo anchor: Self, multiplier: CGFloat) -> NSLayoutConstraint
-    func constraint(lessThanOrEqualTo anchor: Self, multiplier: CGFloat) -> NSLayoutConstraint
-    
-    func constraint(equalTo anchor: Self, multiplier: CGFloat, constant: CGFloat) -> NSLayoutConstraint
-    func constraint(greaterThanOrEqualTo anchor: Self, multiplier: CGFloat, constant: CGFloat) -> NSLayoutConstraint
-    func constraint(lessThanOrEqualTo anchor: Self, multiplier: CGFloat, constant: CGFloat) -> NSLayoutConstraint
-}
 
 extension NSLayoutAnchor: LayoutAnchor {}
 extension NSLayoutDimension: LayoutDimension {}
 
-public class LayoutAnchorProperty<Anchor: LayoutAnchor> {
-    fileprivate let anchor: Anchor
-    init(anchor: Anchor) { self.anchor = anchor }
-}
-public class LayoutDimensionProperty<Dimension: LayoutDimension>: LayoutAnchorProperty<Dimension> {
-    init(dimension: Dimension) {
-        super.init(anchor: dimension)
-    }
-}
-public class LayoutProxy<View: UIView> {
+public class LayoutProxy {
     public lazy var leading = anchor(with: view.leadingAnchor)
     public lazy var trailing = anchor(with: view.trailingAnchor)
     public lazy var top = anchor(with: view.topAnchor)
@@ -54,9 +16,14 @@ public class LayoutProxy<View: UIView> {
     public lazy var width = dimension(with: view.widthAnchor)
     public lazy var height = dimension(with: view.heightAnchor)
     
-    private let view: View
+    @available(iOS 11.0, *)
+    public lazy var safearea = LayoutGuideProperty(guide: view.safeAreaLayoutGuide)
+    public lazy var layoutmargins = LayoutGuideProperty(guide: view.layoutMarginsGuide)
     
-    fileprivate init(view: View) {
+    private let view: UIView
+    
+    fileprivate init(view: UIView) {
+        print(view)
         self.view = view
     }
     private func anchor<A: LayoutAnchor>(with anchor: A) -> LayoutAnchorProperty<A> {
@@ -67,86 +34,22 @@ public class LayoutProxy<View: UIView> {
         return LayoutDimensionProperty(dimension: dimension)
     }
 }
-public extension LayoutProxy where View: UIScrollView {
-    @available(iOS 11.0, *)
-    var contentlayout: UILayoutGuide { return view.contentLayoutGuide }
-}
 public extension LayoutProxy {
-    func becomeChild(of view: UIView) {
-        view.addSubview(self.view)
-    }
-    func stretch(like target: UIView,padding: CGFloat = 0, direction: StretchDirection) {
-        switch direction {
-        case .horizontal:
-            self.leading.equal(to: target.leadingAnchor, offsetBy: padding)
-            self.trailing.equal(to: target.trailingAnchor, offsetBy: -padding)
-        case .vertical:
-            self.top.equal(to: target.topAnchor, offsetBy: padding)
-            self.bottom.equal(to: target.bottomAnchor, offsetBy: -padding)
-        case .both:
-            self.leading.equal(to: target.leadingAnchor, offsetBy: padding)
-            self.trailing.equal(to: target.trailingAnchor, offsetBy: -padding)
-            self.top.equal(to: target.topAnchor, offsetBy: padding)
-            self.bottom.equal(to: target.bottomAnchor, offsetBy: -padding)
-        }
-    }
-    func pin<Anchor: LayoutAnchor>(_ anchor: LayoutAnchorProperty<Anchor>,
-                                   targetAnchor: Anchor) {
-        anchor.equal(to: targetAnchor)
-    }
+    func becomeChild(of view: UIView) { view.addSubview(self.view) }
 }
-public extension LayoutAnchorProperty {
-    func equal(to otherAnchor: Anchor, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(equalTo: otherAnchor, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func greaterThanOrEqual(to otherAnchor: Anchor, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(greaterThanOrEqualTo: otherAnchor, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func lessThanOrEqual(to otherAnchor: Anchor, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(lessThanOrEqualTo: otherAnchor, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-}
-public extension LayoutDimensionProperty {
-    func equal(toConstant c: CGFloat, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(equalToConstant: c)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func greaterThanOrEqual(toConstant c: CGFloat, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(greaterThanOrEqualToConstant: c)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func lessThanOrEqual(toConstant c: CGFloat, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(lessThanOrEqualToConstant: c)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func equal(to otherAnchor: Dimension, multiplier: CGFloat = 1, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(equalTo: otherAnchor, multiplier: multiplier, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func greaterThanOrEqual(to otherAnchor: Dimension, multiplier: CGFloat, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(greaterThanOrEqualTo: otherAnchor, multiplier: multiplier, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-    func lessThanOrEqual(to otherAnchor: Dimension, multiplier: CGFloat, offsetBy constant: CGFloat = 0, priority: UILayoutPriority = .defaultHigh) {
-        let constraint = anchor.constraint(lessThanOrEqualTo: otherAnchor, multiplier: multiplier, constant: constant)
-        constraint.priority = priority
-        constraint.isActive = true
-    }
-}
+
 public extension UIView {
-    func layout<View: UIView>(using closure: (LayoutProxy<View>) -> Void) {
+    func layout(using closure: (LayoutProxy) -> Void) {
         translatesAutoresizingMaskIntoConstraints = false
-        closure(LayoutProxy(view: self as! View))
+        closure(LayoutProxy(view: self))
+    }
+}
+
+class Test {
+    func test() {
+        UIView().layout(using: { proxy in
+        })
+        UIScrollView().layout(using: { proxy in
+        })
     }
 }
