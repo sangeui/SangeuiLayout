@@ -23,7 +23,6 @@ public class LayoutProxy {
     private let view: UIView
     
     fileprivate init(view: UIView) {
-        print(view)
         self.view = view
     }
     private func anchor<A: LayoutAnchor>(with anchor: A) -> LayoutAnchorProperty<A> {
